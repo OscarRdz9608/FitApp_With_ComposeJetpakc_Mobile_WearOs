@@ -1,0 +1,279 @@
+package com.example.syncdata
+
+import android.os.Bundle
+import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+
+
+import androidx.compose.foundation.shape.RoundedCornerShape
+
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
+import com.google.firebase.ktx.Firebase
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            WearApp()
+        }
+    }
+}
+data class workoutData(val name: String = "", val reps: Int = 0)
+
+class workOutviewmodel : ViewModel() {
+    private val database = Firebase.database("https://esp8266-demo-e7191-default-rtdb.firebaseio.com")
+    private var _workoutData = mutableStateOf<List<workoutData>>(emptyList())
+    val workoutData: State<List<workoutData>> = _workoutData
+
+    fun getData() {
+        database.getReference("workout").addValueEventListener(
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    _workoutData.value = snapshot.getValue<List<workoutData>>()!!
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("Firebase", "Error getting data", error.toException())
+                }
+            }
+        )
+    }
+
+    fun writeToDB(Workout: workoutData, index: Int) {
+        val database = Firebase.database("https://esp8266-demo-e7191-default-rtdb.firebaseio.com")
+        val myRef = database.getReference("workout")
+        listOf(Workout).forEach() {
+            myRef.child(index.toString()).setValue(it)
+        }
+    }
+}
+
+
+@Composable
+fun workOutList(workoutData: List<workoutData>) {
+
+Column {
+        workoutData.forEachIndexed { index, workoutData ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = workoutData.name,
+                    modifier = Modifier.weight(1f),
+                    color = Color.Magenta,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = workoutData.reps.toString(),
+                    modifier = Modifier.weight(1f),
+                    color = Color.Magenta,
+                    textAlign = TextAlign.Center
+                )
+                /*Button(
+                    onClick = { },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete",
+                        tint = Color.White
+                    )
+                }*/
+            }
+        }
+    }
+}
+
+
+@Composable
+fun workOutScreen(viewModel: workOutviewmodel ) {
+    viewModel.getData()
+    val index = viewModel.workoutData.value.size
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(onClick = {
+                viewModel.writeToDB(workoutData("Pushups", 10), index)
+            }) {
+                Text(text = "Pushups")
+            }
+            Button(onClick = {
+                viewModel.writeToDB(workoutData("Situps", 10), index)
+            }) {
+                Text(text = "Situps")
+            }
+            Button(onClick = {
+                viewModel.writeToDB(workoutData("Squats", 10), index)
+            }) {
+                Text(text = "Squats")
+            }
+            //Boton para refrescar la lista
+            Button(onClick = {
+                viewModel.getData()
+            }) {
+                Text(text = "Refresh")
+            }
+            //Boton para borrar la lista
+            Button(onClick = {
+                viewModel.writeToDB(workoutData(), 0)
+            }) {
+                Text(text = "Clear")
+            }
+        }
+        workOutList(viewModel.workoutData.value)
+    }
+
+}
+
+
+@Composable
+fun Home(){
+    Column(    modifier = Modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally) {
+
+
+        Card(
+            shape = RoundedCornerShape(8.dp),
+            backgroundColor = Color.Blue,
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                Text(text = "App de Ejercicio",
+                    style = MaterialTheme.typography.h4)
+            }
+        }
+        Card(
+            shape = RoundedCornerShape(8.dp),
+            backgroundColor = MaterialTheme.colors.surface,
+        ) {
+            Column(
+                modifier = Modifier
+                    .height(200.dp)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                Text(text = "Sensores",
+                    style = MaterialTheme.typography.h4)
+                Button( modifier = Modifier,
+                    onClick = { /*TODO*/ }) {
+                    Text(text = "BUTTON")
+                }
+            }
+        }
+
+        Card(
+            shape = RoundedCornerShape(8.dp),
+            backgroundColor = MaterialTheme.colors.surface,
+        ) {
+            Column(
+                modifier = Modifier
+                    .height(200.dp)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                Text(text = "Tus datos",
+                    style = MaterialTheme.typography.h4)
+                Button( modifier = Modifier,
+                    onClick = { /*TODO*/ }) {
+                    Text(text = "BUTTON")
+                }
+            }
+        }
+        Card(
+            shape = RoundedCornerShape(8.dp),
+            backgroundColor = MaterialTheme.colors.surface,
+        ) {
+            Column(
+                modifier = Modifier
+                    .height(200.dp)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                Text(text = "Registros",
+                    style = MaterialTheme.typography.h4)
+                Button( modifier = Modifier,
+                    onClick = { /*TODO*/ }) {
+                    Text(text = "BUTTON")
+                }
+            }
+        }
+
+
+
+    }
+
+
+
+}
+
+
+@Composable
+fun WearApp() {
+    val viewModel = workOutviewmodel()
+    //workOutScreen(viewModel)
+    //Home()
+    val materialBlue700= Color(0xFF1976D2)
+    val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Open))
+    Scaffold(
+        Modifier.background(color = Color.Red),
+        scaffoldState = scaffoldState,
+        topBar = { TopAppBar(title = {
+            Text(text = "Inicio")
+        },backgroundColor = materialBlue700)  },
+        floatingActionButtonPosition = FabPosition.End,
+        floatingActionButton = { FloatingActionButton(onClick = {}){
+            Text("X")
+        } },
+     drawerContent = { Text(text = "drawerContent")
+                     Button(onClick = { /*TODO*/ }) {
+
+                     }},
+
+        bottomBar = { BottomAppBar(backgroundColor = materialBlue700) { Text("BottomAppBar") } }
+    )   {   contentPadding->
+
+        Column(modifier = Modifier.padding(contentPadding)) {
+    Home()
+        }
+
+
+    }
+}
+
