@@ -24,6 +24,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessibilityNew
+import androidx.compose.material.icons.filled.DirectionsRun
+import androidx.compose.material.icons.filled.DirectionsWalk
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -1594,11 +1597,11 @@ fun Ejercicio(navigation: NavController, sharedPreferences: SharedPreferences) {
             Box(Modifier.fillMaxSize()) {
                 val paperState = rememberPagerState()
                 HorizontalPager(
-                    count = 2,
+                    count = 4,
                     state = pagerState,
                     modifier = Modifier.fillMaxSize()
                 ) { page ->
-                    if (page == 1) {
+                    if (page == 3) {
                         Column(
                             modifier = Modifier.fillMaxSize(),
                             //contentAlignment = Alignment.CenterStart,
@@ -1649,6 +1652,42 @@ fun Ejercicio(navigation: NavController, sharedPreferences: SharedPreferences) {
                         }
 
                     }
+
+                    if (page == 1) {
+                        val state= rememberScrollState()
+                        LaunchedEffect(Unit) { state.animateScrollTo(40)}
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(MaterialTheme.colors.background)
+                                    .verticalScroll(state),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                correr(sharedPreferences, totalTime = 0L)
+                            }
+                        }
+
+                    }
+
+                    if (page == 2) {
+                        val state= rememberScrollState()
+                        LaunchedEffect(Unit) { state.animateScrollTo(40)}
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(MaterialTheme.colors.background)
+                                    .verticalScroll(state),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                sentadilla(sharedPreferences, totalTime = 0L)
+                            }
+                        }
+                    }
+
                 }
 
 
@@ -1743,7 +1782,208 @@ fun getHearRateData():String{
 
 
 @Composable
+fun getGravityData():String{
+    val ctx = LocalContext.current
+    val sensorManager : SensorManager =
+        ctx.getSystemService(
+            Context.SENSOR_SERVICE
+        ) as SensorManager
+    val gravitySensor: Sensor =
+        sensorManager.getDefaultSensor(
+            Sensor.TYPE_GRAVITY
+        )
+    var gravityStatus = remember {
+        mutableStateOf("")
+    }
+    val gravitySensorListener = object: SensorEventListener {
+        override fun onSensorChanged(p0: SensorEvent?) {
+            p0?:return
+            p0.values.firstOrNull()?.let {
+                gravityStatus.value= p0.values[0].toInt().toString()
+            }
+        }
+        override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+            println("onAccuracyChanged : Sensor: $p0; accuracy$p1")
+        }
+
+    }
+    sensorManager.registerListener(
+        gravitySensorListener,
+        gravitySensor,
+        SensorManager.SENSOR_DELAY_NORMAL
+    )
+    return gravityStatus.value
+}
+
+////////////////////////////CALORIAS/////////////////////////////
+@Composable
 fun calorias(
+    sharedPreferences: SharedPreferences,
+// total time of the timer
+    totalTime: Long,
+    // set initial value to 1
+    initialValue: Float = 1f,
+) {
+
+    var resettime: Float = count.value
+    // create variable for
+    // size of the composable
+    var size by remember {
+        mutableStateOf(IntSize.Zero)
+    }
+    // create variable for value
+    var value by remember {
+        mutableStateOf(initialValue)
+    }
+    // create variable for current time
+    var currentTime by remember {
+        mutableStateOf(totalTime)
+    }
+    // create variable for isTimerRunning
+    var isTimerRunning by remember {
+        mutableStateOf(false)
+    }
+    var distancia by remember {
+        mutableStateOf(0.0)
+    }
+    LaunchedEffect(key1 = currentTime, key2 = isTimerRunning) {
+        if(currentTime >= 0 && isTimerRunning) {
+            delay(100L)
+            currentTime += 100L
+            value = currentTime / totalTime.toFloat()
+            distancia += (currentTime / 10000L)*3.5
+            resettime+=1
+        }
+    }
+    val ctx = LocalContext.current;
+    var peso= sharedPreferences.getString("PESO", "defaultPeso")
+    var edad= sharedPreferences.getString("EDAD", "defaultEdad")
+    var altura= sharedPreferences.getString("ALTURA", "defaultAltura")
+    var sexo= sharedPreferences.getString("SEXO", "defaultSexo")
+    var calorias= 0.029*(peso?.toDoubleOrNull() ?:1 *2.2)*((currentTime / 1000L)/60)
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "WALKING", fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Green)
+        Spacer(modifier = Modifier.height(10.dp))
+        Button(
+            modifier = Modifier
+                .padding(top = 5.dp)
+                .size(30.dp, 30.dp),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color.White
+            ),
+            onClick = { /**/ }, // Ação
+        ) {
+            Icon(
+                imageVector = Icons.Default.DirectionsWalk,
+                contentDescription = "airplane",
+                tint = Color.Black,
+                modifier = Modifier
+                    .size(ButtonDefaults.DefaultButtonSize)
+                    .wrapContentSize(align = Alignment.Center),
+            )
+        }
+        Text(
+            text = "Calorias quemadas: " + calorias.toString(), fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = "Distancia: " + distancia.toString(), fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+        Row() {
+            Button(
+                modifier = Modifier
+                    .padding(top = 5.dp)
+                    .size(70.dp, 30.dp),
+                onClick = {
+                    if (currentTime <= 0L) {
+                        currentTime = totalTime
+                        isTimerRunning = true
+                    } else {
+                        isTimerRunning = !isTimerRunning
+                    }
+                },
+
+                // change button color
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = if (!isTimerRunning || currentTime <= 0L) {
+                        Color.Green
+                    } else {
+                        Color.Red
+                    }
+                )
+            ) {
+                Text(
+                    // change the text of button based on values
+                    text = if (isTimerRunning && currentTime >= 0L) "Stop"
+                    else if (!isTimerRunning && currentTime >= 0L) "Start"
+                    else "Restart"
+                )
+            }
+            Button(
+                modifier = Modifier
+                    .padding(top = 5.dp)
+                    .size(70.dp, 30.dp),
+                onClick = {
+                    isTimerRunning = false
+                    currentTime = 0L
+                    resettime = 0f
+
+                    val sdf =
+                        SimpleDateFormat("'Date\n'dd-MM-yyyy '\n\nand\n\nTime\n'HH:mm:ss z")
+                    val currentDateAndTime = sdf.format(Date())
+                    var registro =
+                        "$currentDateAndTime Calorias $calorias Distancia $distancia"
+                    var aux = sharedPreferences.getString("REGISTRO", "defaultRegistro")
+                    aux = aux + "\n" + registro
+                    var editor = sharedPreferences.edit()
+                    editor.putString("REGISTRO", aux)
+                    editor.commit()
+                    Toast.makeText(ctx, "$registro", Toast.LENGTH_SHORT).show()
+                },
+
+                // change button color
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color.Gray
+
+                )
+            ) {
+                Text(
+                    // change the text of button based on values
+                    text = "Restart"
+                )
+            }
+        }
+        Text(
+            text = (currentTime / 1000L).toString() + " seg",
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+
+    }
+    // add value of the timer
+
+    // create button to start or stop the timer
+
+}
+
+////////////////////////////CORRER/////////////////////////////
+@Composable
+fun correr(
     sharedPreferences: SharedPreferences,
 // total time of the timer
     totalTime: Long,
@@ -1789,142 +2029,291 @@ fun calorias(
     var calorias= 0.029*(peso?.toDoubleOrNull() ?:1 *2.2)*((currentTime / 1000L)/60)
 
 
-         Column(
-             modifier = Modifier
-                 .fillMaxSize()
-                 .background(MaterialTheme.colors.background),
-             verticalArrangement = Arrangement.Center,
-             horizontalAlignment = Alignment.CenterHorizontally
-         ) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "RUNNING", fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Green)
+        Spacer(modifier = Modifier.height(10.dp))
+        Button(
+            modifier = Modifier
+                .padding(top = 5.dp)
+                .size(30.dp, 30.dp),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color.White
+            ),
+            onClick = { /**/ }, // Ação
+        ) {
+            Icon(
+                imageVector = Icons.Default.DirectionsRun,
+                contentDescription = "airplane",
+                tint = Color.Black,
+                modifier = Modifier
+                    .size(ButtonDefaults.DefaultButtonSize)
+                    .wrapContentSize(align = Alignment.Center),
+            )
+        }
+        Text(
+            text = "Calorias quemadas: " + calorias.toString(), fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = "Distancia: " + distancia.toString(), fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+        Row() {
+            Button(
+                modifier = Modifier
+                    .padding(top = 5.dp)
+                    .size(70.dp, 30.dp),
+                onClick = {
+                    if (currentTime <= 0L) {
+                        currentTime = totalTime
+                        isTimerRunning = true
+                    } else {
+                        isTimerRunning = !isTimerRunning
+                    }
+                },
 
-             /* +(currentTime / 1000L).toString(),*/
-             Spacer(modifier = Modifier.height(18.dp))
-             Button(
-                 modifier = Modifier
-                     .padding(top = 5.dp)
-                     .size(30.dp, 30.dp),
-                 colors = ButtonDefaults.buttonColors(
-                     backgroundColor = Color.White
-                 ),
-                 onClick = { /**/ }, // Ação
-             ) {
-                 Icon(
-                     imageVector = Icons.Rounded.Favorite,
-                     contentDescription = "airplane",
-                     tint = Color.Black,
-                     modifier = Modifier
-                         .size(ButtonDefaults.DefaultButtonSize)
-                         .wrapContentSize(align = Alignment.Center),
-                 )
-             }
-             Text(
-                 text = "Calorias quemadas: " + calorias.toString(), fontSize = 15.sp,
-                 fontWeight = FontWeight.Bold,
-                 color = Color.White
-             )
-             Button(
-                 modifier = Modifier
-                     .padding(top = 5.dp)
-                     .size(30.dp, 30.dp),
-                 colors = ButtonDefaults.buttonColors(
-                     backgroundColor = Color.White
-                 ),
-                 onClick = { /**/ }, // Ação
-             ) {
-                 Icon(
-                     imageVector = Icons.Rounded.FollowTheSigns,
-                     contentDescription = "airplane",
-                     tint = Color.Black,
-                     modifier = Modifier
-                         .size(ButtonDefaults.DefaultButtonSize)
-                         .wrapContentSize(align = Alignment.Center),
-                 )
-             }
-             Text(
-                 text = "Distancia: " + distancia.toString(), fontSize = 15.sp,
-                 fontWeight = FontWeight.Bold,
-                 color = Color.White
-             )
-             Row() {
-                 Button(
-                     modifier = Modifier
-                         .padding(top = 5.dp)
-                         .size(70.dp, 30.dp),
-                     onClick = {
-                         if (currentTime <= 0L) {
-                             currentTime = totalTime
-                             isTimerRunning = true
-                         } else {
-                             isTimerRunning = !isTimerRunning
-                         }
-                     },
+                // change button color
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = if (!isTimerRunning || currentTime <= 0L) {
+                        Color.Green
+                    } else {
+                        Color.Red
+                    }
+                )
+            ) {
+                Text(
+                    // change the text of button based on values
+                    text = if (isTimerRunning && currentTime >= 0L) "Stop"
+                    else if (!isTimerRunning && currentTime >= 0L) "Start"
+                    else "Restart"
+                )
+            }
+            Button(
+                modifier = Modifier
+                    .padding(top = 5.dp)
+                    .size(70.dp, 30.dp),
+                onClick = {
+                    isTimerRunning = false
+                    currentTime = 0L
+                    resettime = 0f
 
-                     // change button color
-                     colors = ButtonDefaults.buttonColors(
-                         backgroundColor = if (!isTimerRunning || currentTime <= 0L) {
-                             Color.Green
-                         } else {
-                             Color.Red
-                         }
-                     )
-                 ) {
-                     Text(
-                         // change the text of button based on values
-                         text = if (isTimerRunning && currentTime >= 0L) "Stop"
-                         else if (!isTimerRunning && currentTime >= 0L) "Start"
-                         else "Restart"
-                     )
-                 }
-                 Button(
-                     modifier = Modifier
-                         .padding(top = 5.dp)
-                         .size(70.dp, 30.dp),
-                     onClick = {
+                    val sdf =
+                        SimpleDateFormat("'Date\n'dd-MM-yyyy '\n\nand\n\nTime\n'HH:mm:ss z")
+                    val currentDateAndTime = sdf.format(Date())
+                    var registro =
+                        "$currentDateAndTime Calorias $calorias Distancia $distancia"
+                    var aux = sharedPreferences.getString("REGISTRO", "defaultRegistro")
+                    aux = aux + "\n" + registro
+                    var editor = sharedPreferences.edit()
+                    editor.putString("REGISTRO", aux)
+                    editor.commit()
+                    Toast.makeText(ctx, "$registro", Toast.LENGTH_SHORT).show()
+                },
+
+                // change button color
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color.Gray
+
+                )
+            ) {
+                Text(
+                    // change the text of button based on values
+                    text = "Restart"
+                )
+            }
+        }
+        Text(
+            text = (currentTime / 1000L).toString() + " seg",
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+
+    }
+    // add value of the timer
+
+    // create button to start or stop the timer
+}
+
+////////////////////////////SENTADILLA/////////////////////////////
+@Composable
+fun sentadilla(
+    sharedPreferences: SharedPreferences,
+// total time of the timer
+    totalTime: Long,
+    // set initial value to 1
+    initialValue: Float = 1f,
+) {
+
+    var resettime: Float = count.value
+    // create variable for
+    // size of the composable
+    var size by remember {
+        mutableStateOf(IntSize.Zero)
+    }
+    // create variable for value
+    var value by remember {
+        mutableStateOf(initialValue)
+    }
+    // create variable for current time
+    var currentTime by remember {
+        mutableStateOf(totalTime)
+    }
+    // create variable for isTimerRunning
+    var isTimerRunning by remember {
+        mutableStateOf(false)
+    }
+    var distancia by remember {
+        mutableStateOf(0.0)
+    }
+    LaunchedEffect(key1 = currentTime, key2 = isTimerRunning) {
+        if(currentTime >= 0 && isTimerRunning) {
+            delay(100L)
+            currentTime += 100L
+            value = currentTime / totalTime.toFloat()
+            distancia += (currentTime / 10000L)/2
+            resettime+=1
+        }
+    }
+    val ctx = LocalContext.current;
+    var peso= sharedPreferences.getString("PESO", "defaultPeso")
+    var edad= sharedPreferences.getString("EDAD", "defaultEdad")
+    var altura= sharedPreferences.getString("ALTURA", "defaultAltura")
+    var sexo= sharedPreferences.getString("SEXO", "defaultSexo")
+    var calorias= 0.029*(peso?.toDoubleOrNull() ?:1 *2.2)*((currentTime / 1000L)/60)
 
 
-                         isTimerRunning = false
-                         currentTime = 0L
-                         resettime = 0f
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "SQUATS", fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Green)
+        Spacer(modifier = Modifier.height(10.dp))
+        Button(
+            modifier = Modifier
+                .padding(top = 5.dp)
+                .size(30.dp, 30.dp),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color.White
+            ),
+            onClick = { /**/ }, // Ação
+        ) {
+            Icon(
+                imageVector = Icons.Default.AccessibilityNew,
+                contentDescription = "airplane",
+                tint = Color.Black,
+                modifier = Modifier
+                    .size(ButtonDefaults.DefaultButtonSize)
+                    .wrapContentSize(align = Alignment.Center),
+            )
+        }
+        Text(
+            text = "Calorias: " + calorias.toString(), fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = "Squats: " + distancia.toString(), fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+        Row() {
+            Button(
+                modifier = Modifier
+                    .padding(top = 5.dp)
+                    .size(70.dp, 30.dp),
+                onClick = {
+                    if (currentTime <= 0L) {
+                        currentTime = totalTime
+                        isTimerRunning = true
+                    } else {
+                        isTimerRunning = !isTimerRunning
+                    }
+                },
 
-                         val sdf =
-                             SimpleDateFormat("'Date\n'dd-MM-yyyy '\n\nand\n\nTime\n'HH:mm:ss z")
-                         val currentDateAndTime = sdf.format(Date())
-                         var registro =
-                             "$currentDateAndTime Calorias $calorias Distancia $distancia"
-                         var aux = sharedPreferences.getString("REGISTRO", "defaultRegistro")
-                         aux = aux + "\n" + registro
-                         var editor = sharedPreferences.edit()
-                         editor.putString("REGISTRO", aux)
-                         editor.commit()
-                         Toast.makeText(ctx, "$registro", Toast.LENGTH_SHORT).show()
-                     },
+                // change button color
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = if (!isTimerRunning || currentTime <= 0L) {
+                        Color.Green
+                    } else {
+                        Color.Red
+                    }
+                )
+            ) {
+                Text(
+                    // change the text of button based on values
+                    text = if (isTimerRunning && currentTime >= 0L) "Stop"
+                    else if (!isTimerRunning && currentTime >= 0L) "Start"
+                    else "Restart"
+                )
+            }
+            Button(
+                modifier = Modifier
+                    .padding(top = 5.dp)
+                    .size(70.dp, 30.dp),
+                onClick = {
+                    isTimerRunning = false
+                    currentTime = 0L
+                    resettime = 0f
 
-                     // change button color
-                     colors = ButtonDefaults.buttonColors(
-                         backgroundColor = Color.Gray
+                    val sdf =
+                        SimpleDateFormat("'Date\n'dd-MM-yyyy '\n\nand\n\nTime\n'HH:mm:ss z")
+                    val currentDateAndTime = sdf.format(Date())
+                    var registro =
+                        "$currentDateAndTime Calorias $calorias Distancia $distancia"
+                    var aux = sharedPreferences.getString("REGISTRO", "defaultRegistro")
 
-                     )
-                 ) {
-                     Text(
-                         // change the text of button based on values
-                         text = "Restart"
-                     )
-                 }
-             }
-             Text(
-                 text = (currentTime / 1000L).toString() + " seg",
-                 fontSize = 15.sp,
-                 fontWeight = FontWeight.Bold,
-                 color = Color.White
-             )
+                    aux = aux + "\n" + registro
+                    var editor = sharedPreferences.edit()
+                    editor.putString("REGISTRO", aux)
+                    editor.commit()
+                    Toast.makeText(ctx, "$registro", Toast.LENGTH_SHORT).show()
+                },
 
-         }
-         // add value of the timer
+                // change button color
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color.Gray
+                )
+            ) {
+                Text(
+                    // change the text of button based on values
+                    text = "Restart"
+                )
+            }
+        }
+        Text(
+            text = (currentTime / 1000L).toString() + " seg",
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
 
-         // create button to start or stop the timer
+    }
+    // add value of the timer
+
+    // create button to start or stop the timer
 
 }
-////////////////////////////CALORIAS/////////////////////////////
+
+
+
 
 
 
