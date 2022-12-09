@@ -9,6 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 
 
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -53,7 +54,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ScreenMain()
+           // ScreenMain()
+            TabLayout()
         }
     }
 }
@@ -272,8 +274,10 @@ fun Home(){
 @ExperimentalPagerApi
 @Composable
 fun TabLayout() {
+    val colorcito = Color(0xFF6E53C6)
     // on below line we are creating variable for pager state.
     val pagerState = rememberPagerState(pageCount = 5)
+
 
     // on below line we are creating a column for our widgets.
     Column(
@@ -282,7 +286,7 @@ fun TabLayout() {
     ) {
         // on the below line we are specifying the top app bar
         // and specifying background color for it.
-        TopAppBar(backgroundColor = Color.Green) {
+        TopAppBar(backgroundColor = colorcito) {
             // on below line we are specifying a column
             // for our text view to display a text
             // in our top app bar.
@@ -325,18 +329,19 @@ fun TabLayout() {
 @ExperimentalPagerApi
 @Composable
 fun Tabs(pagerState: PagerState) {
-
+    val colorcito = Color(0xFF6E53C6)
     val list = listOf(
-        "Caminar" to Icons.Default.Home,
-        "Correr" to Icons.Default.ShoppingCart,
-        "Sentadillas" to Icons.Default.Settings,
-        "Registros" to Icons.Default.List,
-        "Datos" to Icons.Default.Person,
+        "Walking" to Icons.Default.DirectionsWalk,
+        "Running" to Icons.Default.DirectionsRun,
+        "Squats" to Icons.Default.SelfImprovement,
+        //"Sentadillas" to Icons.Default.AccessibilityNew,
+        "Logs" to Icons.Default.Dns,
+        "Data" to Icons.Default.Person,
     )
     val scope = rememberCoroutineScope()
     TabRow(
         selectedTabIndex = pagerState.currentPage,
-        backgroundColor = Color.Green,
+        backgroundColor = colorcito,
         contentColor = Color.White,
         indicator = { tabPositions ->
             TabRowDefaults.Indicator(
@@ -393,7 +398,7 @@ fun Caminar(){
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        Text(text = "Numero de pasos",
+        Text(text = "Walking",
             style = MaterialTheme.typography.h4,
             fontSize = 45.sp)
 Spacer(modifier = Modifier.height(20.dp))
@@ -421,7 +426,7 @@ Spacer(modifier = Modifier.height(20.dp))
             )
 
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("Pasos")
+            Text("Calorias")
         }
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -465,7 +470,7 @@ fun Correr(){
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        Text(text = "Numero de pasos",
+        Text(text = "Running",
             style = MaterialTheme.typography.h4,
             fontSize = 45.sp)
         Spacer(modifier = Modifier.height(20.dp))
@@ -493,7 +498,7 @@ fun Correr(){
             )
 
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("Pasos")
+            Text("Calorias")
         }
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -538,63 +543,14 @@ fun Registros(){
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        Text(text = "Numero de pasos",
+        Text(text = "Registros",
             style = MaterialTheme.typography.h4,
             fontSize = 45.sp)
         Spacer(modifier = Modifier.height(20.dp))
-        Button(
-            onClick = { /* ... */ },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-            modifier = Modifier
-                .height(80.dp)
-                .width(180.dp),
-
-            // Uses ButtonDefaults.ContentPadding by default
-            contentPadding = PaddingValues(
-                start = 20.dp,
-                top = 12.dp,
-                end = 20.dp,
-                bottom = 12.dp
-            )
-        ) {
-            // Inner content including an icon and a text label
-            Icon(
-                Icons.Filled.Favorite,
-                contentDescription = "Favorite",
-                tint = Color(0xFF26C6DA), //5
-                modifier = Modifier.size(24.dp)
-            )
-
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("Pasos")
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-        Button(
-            onClick = { /* ... */ },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-            modifier = Modifier
-                .height(80.dp)
-                .width(180.dp),
-
-            // Uses ButtonDefaults.ContentPadding by default
-            contentPadding = PaddingValues(
-                start = 20.dp,
-                top = 12.dp,
-                end = 20.dp,
-                bottom = 12.dp
-            )
-        ) {
-            // Inner content including an icon and a text label
-            Icon(
-                Icons.Filled.Favorite,
-                contentDescription = "Favorite",
-                tint = Color(0xFF26C6DA), //5
-                modifier = Modifier.size(24.dp)
-            )
-
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("Distancia")
+        LazyColumn {
+            items(10) {
+                Text(text = "Registro")
+            }
         }
 
 
@@ -604,72 +560,69 @@ fun Registros(){
 
 @Composable
 fun Datos(){
-    Column(
+    var nom_usuario by remember { mutableStateOf("") }
+    var edad_usuario by remember { mutableStateOf("") }
+    var altura_usuario by remember { mutableStateOf("") }
+    var peso_usuario by remember { mutableStateOf("") }
+    var sexo_usuario by remember { mutableStateOf("") }
+        Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        Text(text = "Numero de pasos",
+        Text(text = "Tus datos",
             style = MaterialTheme.typography.h4,
             fontSize = 45.sp)
+            Spacer(modifier = Modifier.height(20.dp))
+        TextField(value = nom_usuario, onValueChange = {nom_usuario=it},
+            leadingIcon = {Icon(imageVector = Icons.Default.Person, contentDescription = "UserIcon")},
+            label = { Text(text = "Usuario")})
         Spacer(modifier = Modifier.height(20.dp))
-        Button(
-            onClick = { /* ... */ },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-            modifier = Modifier
-                .height(80.dp)
-                .width(180.dp),
 
-            // Uses ButtonDefaults.ContentPadding by default
-            contentPadding = PaddingValues(
-                start = 20.dp,
-                top = 12.dp,
-                end = 20.dp,
-                bottom = 12.dp
-            )
-        ) {
-            // Inner content including an icon and a text label
-            Icon(
-                Icons.Filled.Favorite,
-                contentDescription = "Favorite",
-                tint = Color(0xFF26C6DA), //5
-                modifier = Modifier.size(24.dp)
-            )
-
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("Pasos")
-        }
-
+        TextField(value = edad_usuario, onValueChange = {edad_usuario=it},
+            leadingIcon = {Icon(imageVector = Icons.Default.Person, contentDescription = "UserIcon")},
+            label = { Text(text = "Edad")})
         Spacer(modifier = Modifier.height(20.dp))
-        Button(
-            onClick = { /* ... */ },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-            modifier = Modifier
-                .height(80.dp)
-                .width(180.dp),
+        TextField(value = altura_usuario, onValueChange = {altura_usuario=it},
+            leadingIcon = {Icon(imageVector = Icons.Default.Person, contentDescription = "UserIcon")},
+            label = { Text(text = "Altura")})
+        Spacer(modifier = Modifier.height(20.dp))
+        TextField(value = peso_usuario, onValueChange = {peso_usuario=it},
+            leadingIcon = {Icon(imageVector = Icons.Default.Person, contentDescription = "UserIcon")},
+            label = { Text(text = "Peso")})
+        Spacer(modifier = Modifier.height(20.dp))
+            TextField(value = sexo_usuario, onValueChange = {sexo_usuario=it},
+                leadingIcon = {Icon(imageVector = Icons.Default.Person, contentDescription = "UserIcon")},
+                label = { Text(text = "Sexo")})
+            Spacer(modifier = Modifier.height(20.dp))
+            Button(
+                onClick = { /* ... */ },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+                modifier = Modifier
+                    .height(80.dp)
+                    .width(180.dp),
 
-            // Uses ButtonDefaults.ContentPadding by default
-            contentPadding = PaddingValues(
-                start = 20.dp,
-                top = 12.dp,
-                end = 20.dp,
-                bottom = 12.dp
-            )
-        ) {
-            // Inner content including an icon and a text label
-            Icon(
-                Icons.Filled.Favorite,
-                contentDescription = "Favorite",
-                tint = Color(0xFF26C6DA), //5
-                modifier = Modifier.size(24.dp)
-            )
+                // Uses ButtonDefaults.ContentPadding by default
+                contentPadding = PaddingValues(
+                    start = 20.dp,
+                    top = 12.dp,
+                    end = 20.dp,
+                    bottom = 12.dp
+                )
+            ) {
+                // Inner content including an icon and a text label
+                Icon(
+                    Icons.Filled.Favorite,
+                    contentDescription = "Favorite",
+                    tint = Color(0xFF26C6DA), //5
+                    modifier = Modifier.size(24.dp)
+                )
 
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("Distancia")
-        }
-
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                Text("Pasos")
+            }
 
     }
 
@@ -684,7 +637,7 @@ fun Sentadillas(){
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        Text(text = "Numero de pasos",
+        Text(text = "Squat",
             style = MaterialTheme.typography.h4,
             fontSize = 45.sp)
         Spacer(modifier = Modifier.height(20.dp))
@@ -712,7 +665,7 @@ fun Sentadillas(){
             )
 
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("Pasos")
+            Text("Calorias")
         }
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -837,6 +790,3 @@ fun ScreenMain(){
 }
 
 
-fun singIn(usuario:String , password:String, navController: NavController){
-
-}

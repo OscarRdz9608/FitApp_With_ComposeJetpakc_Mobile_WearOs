@@ -1,9 +1,6 @@
 package com.example.syncdata.presentation
 
-
-
 import android.Manifest
-import android.Manifest.permission.BODY_SENSORS
 import android.app.RemoteInput
 import android.content.Context
 import android.content.Intent
@@ -17,12 +14,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+//import androidx.compose.foundation.layout.R
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -35,19 +32,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.wear.ambient.AmbientModeSupport
 import androidx.wear.compose.material.*
@@ -56,24 +49,18 @@ import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import androidx.wear.input.RemoteInputIntentHelper
 import androidx.wear.input.wearableExtender
-import com.example.syncdata.R
-import com.example.syncdata.presentation.theme.SyncdataTheme
+import  com.example.syncdata.R
 import com.example.syncdata.presentation.theme.amaticsc
-import com.example.syncdata.presentation.theme.dancingscript
-import com.example.syncdata.presentation.theme.raleway
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
-import com.google.firebase.database.ktx.getValue
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
+
+import com.example.syncdata.presentation.theme.dancingscript
+import com.example.syncdata.presentation.theme.raleway
 
 class MainActivity : FragmentActivity(), AmbientModeSupport.AmbientCallbackProvider {
     private val STEP_SENSOR_CODE = 20
@@ -89,108 +76,6 @@ class MainActivity : FragmentActivity(), AmbientModeSupport.AmbientCallbackProvi
             makeRequest()
         }
     }
-data class workoutData(val name: String = "", val reps: Int = 0)
-
-class workOutviewmodel : ViewModel() {
-    private val database = Firebase.database("https://esp8266-demo-e7191-default-rtdb.firebaseio.com")
-    private var _workoutData = mutableStateOf<List<workoutData>>(emptyList())
-    val workoutData: State<List<workoutData>> = _workoutData
-
-    fun getData() {
-        database.getReference("workout").addValueEventListener(
-            object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    _workoutData.value = snapshot.getValue<List<workoutData>>()!!
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    Log.e("Firebase", "Error getting data", error.toException())
-                }
-            }
-        )
-    }
-
-    fun writeToDB(Workout: workoutData, index: Int) {
-        val database = Firebase.database("https://esp8266-demo-e7191-default-rtdb.firebaseio.com")
-        val myRef = database.getReference("workout")
-        listOf(Workout).forEach() {
-            myRef.child(index.toString()).setValue(it)
-        }
-    }
-}
-
-@Composable
-fun workOutScreen(viewModel: workOutviewmodel ) {
-    viewModel.getData()
-    val index = viewModel.workoutData.value.size
-    ScalingLazyColumn() {
-        items(viewModel.workoutData.value) { workout ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = workout.name,
-                    //modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    color = Color.White
-                )
-                Text(
-                    text = workout.reps.toString(),
-                    //modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    color = Color.White
-                )
-            }
-        }
-        item {
-            Button(onClick = {
-                viewModel.writeToDB(workoutData("carrera", 10), index)
-            }) {
-                Text(text = "Registrar ejercicio")
-            }
-        }
-    }
-}
-
-
-    @Composable
-    fun WearApp(sharedPreferences: SharedPreferences) {
-        var editor = sharedPreferences.edit()
-        editor.putString("REGISTRO", "")
-        editor.commit()
-
-        //workOutScreen(workOutviewmodel())/////////////////////////////////LINEA DE BRADON
-
-
-        val listState = rememberScalingLazyListState()
-        Scaffold(timeText = {
-            if (!listState.isScrollInProgress) {
-                TimeText()
-            }
-        },
-            vignette = {
-                Vignette(vignettePosition = VignettePosition.Top)
-            },
-            positionIndicator = {
-                PositionIndicator(scalingLazyListState = listState)
-            }
-        ) {
-            principal(sharedPreferences)
-        }
-
-    }
-
-
-
-
-
-
-
-/////////////////////////////////////////////////////////////////////
-
-
-
     private fun makeRequest() {
         ActivityCompat.requestPermissions(
             this,
@@ -247,16 +132,7 @@ private class MyAmbientCallback : AmbientModeSupport.AmbientCallback() {
 
 object NavRoute {
     const val  HomeScreen = "home"
-    const val  SCREEN_3= "screen3"
-    const val  SCREEN_2= "screen2"
     const val  USER_SCREEN= "user_screen/{user}"
-
-    const val  SCREEN_3Peso= "screen3peso"
-    const val  DETAILSCREENPeso= "detailScreenpeso/{id}"
-    const val  SCREEN_3Talla= "screen3talla"
-    const val  DETAILSTalla= "detailScreentalla/{id}"
-    const val  SCREEN_3Edad= "screen3edad"
-    const val  DETAILSEdad= "detailScreenedad/{id}"
     const val tabSensores= "tabSensores"
     const val tabDatos= "tabDatos"
     const val  TEXTSCREEN ="textscreen"
@@ -269,6 +145,7 @@ fun WearApp(sharedPreferences: SharedPreferences) {
     var editor = sharedPreferences.edit()
     editor.putString("REGISTRO", "")
     editor.commit()
+
         val listState = rememberScalingLazyListState()
         Scaffold(timeText = {
             if (!listState.isScrollInProgress) {
@@ -285,6 +162,7 @@ fun WearApp(sharedPreferences: SharedPreferences) {
             principal(sharedPreferences)
         }
     }
+
 
 
 @Composable
@@ -343,7 +221,7 @@ fun homeScreen(navigation: NavController, sharedPreferences: SharedPreferences) 
                 .fillMaxWidth(),
             onClick = { navigation.navigate(NavRoute.EJERCICIO) },
             colors = ChipDefaults.imageBackgroundChipColors(
-                backgroundImagePainter = painterResource(id = R.drawable.ejercicio)
+                backgroundImagePainter = painterResource(id =R.drawable.ejercicio)
             ),
         )
         Spacer(modifier = Modifier.height(5.dp))
@@ -381,7 +259,7 @@ fun homeScreen(navigation: NavController, sharedPreferences: SharedPreferences) 
 
 
 @Composable
-fun userscreen(username: String, sharedPreferences: SharedPreferences,navigation: NavController){
+fun userscreen(username: String, sharedPreferences: SharedPreferences, navigation: NavController){
     var user = sharedPreferences.getString("username","defaultName")
     Column(
         modifier = Modifier
@@ -677,7 +555,7 @@ fun tabDatos(navigation: NavController, sharedPreferences: SharedPreferences){
                                 .size(ButtonDefaults.DefaultButtonSize)
                                 .wrapContentSize(align = Alignment.Center),
                         )
-                        Spacer(modifier =Modifier.width(10.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
                         //Text(text = "Editar", color = Color.Red)
                     }
                     Button (
@@ -695,7 +573,7 @@ fun tabDatos(navigation: NavController, sharedPreferences: SharedPreferences){
                                 .size(ButtonDefaults.DefaultButtonSize)
                                 .wrapContentSize(align = Alignment.Center),
                         )
-                        Spacer(modifier =Modifier.width(10.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
                         // Text(text = "Menu principal", color = Color.Red)
                     }
                 }
@@ -1628,7 +1506,7 @@ fun tabRegistros(navigation: NavController, sharedPreferences: SharedPreferences
                                         .wrapContentSize(align = Alignment.Center),
                                 )
                             }
-                            Spacer(modifier =Modifier.height(10.dp))
+                            Spacer(modifier = Modifier.height(10.dp))
                             Text(text = "Regresar", color = Color.White)
                         }
                     }
@@ -1824,7 +1702,7 @@ fun getStepData():String{
     sensorManager.registerListener(
         stepSensorListener,
         StepSensor,
-        SensorManager.SENSOR_DELAY_FASTEST
+        SensorManager.SENSOR_DELAY_NORMAL
     )
     return stepvalue.value
 }
@@ -1891,11 +1769,15 @@ fun calorias(
     var isTimerRunning by remember {
         mutableStateOf(false)
     }
+    var distancia by remember {
+        mutableStateOf(0.0)
+    }
     LaunchedEffect(key1 = currentTime, key2 = isTimerRunning) {
         if(currentTime >= 0 && isTimerRunning) {
             delay(100L)
             currentTime += 100L
             value = currentTime / totalTime.toFloat()
+            distancia += (currentTime / 10000L)*5.5
             resettime+=1
         }
     }
@@ -1904,134 +1786,142 @@ fun calorias(
     var edad= sharedPreferences.getString("EDAD", "defaultEdad")
     var altura= sharedPreferences.getString("ALTURA", "defaultAltura")
     var sexo= sharedPreferences.getString("SEXO", "defaultSexo")
-
     var calorias= 0.029*(peso?.toDoubleOrNull() ?:1 *2.2)*((currentTime / 1000L)/60)
-    var distancia = getStepData().toDoubleOrNull() ?:1  * 0.000762
-
-    // draw the timer
-    Column(modifier= Modifier
-        .fillMaxSize()
-        .background(MaterialTheme.colors.background),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally){
-
-        /* +(currentTime / 1000L).toString(),*/
-        Spacer(modifier =Modifier.height(18.dp))
-        Button(
-            modifier = Modifier
-                .padding(top = 5.dp)
-                .size(30.dp, 30.dp),
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color.White
-            ),
-            onClick = { /**/ }, // Ação
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Favorite,
-                contentDescription = "airplane",
-                tint = Color.Black,
-                modifier = Modifier
-                    .size(ButtonDefaults.DefaultButtonSize)
-                    .wrapContentSize(align = Alignment.Center),
-            )
-        }
-        Text(text = "Calorias quemadas: "+calorias.toString(), fontSize = 15.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White)
-        Button(
-            modifier = Modifier
-                .padding(top = 5.dp)
-                .size(30.dp, 30.dp),
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color.White
-            ),
-            onClick = { /**/ }, // Ação
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.FollowTheSigns,
-                contentDescription = "airplane",
-                tint = Color.Black,
-                modifier = Modifier
-                    .size(ButtonDefaults.DefaultButtonSize)
-                    .wrapContentSize(align = Alignment.Center),
-            )
-        }
-        Text(text = "Distancia: "+distancia.toString(), fontSize = 15.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White)
-        Row() {
-            Button( modifier = Modifier
-                .padding(top = 5.dp)
-                .size(70.dp, 30.dp),
-                onClick = {
-                    if(currentTime <= 0L) {
-                        currentTime = totalTime
-                        isTimerRunning = true
-                    } else {
-                        isTimerRunning = !isTimerRunning
-                    }
-                },
-
-                // change button color
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (!isTimerRunning || currentTime <= 0L) {
-                        Color.Green
-                    } else {
-                        Color.Red
-                    }
-                )
-            ) {
-                Text(
-                    // change the text of button based on values
-                    text = if (isTimerRunning && currentTime >= 0L) "Stop"
-                    else if (!isTimerRunning && currentTime >= 0L) "Start"
-                    else "Restart"
-                )
-            }
-            Button( modifier = Modifier
-                .padding(top = 5.dp)
-                .size(70.dp, 30.dp),
-                onClick = {
 
 
-                    isTimerRunning = false
-                    currentTime = 0L
-                    resettime=0f
+         Column(
+             modifier = Modifier
+                 .fillMaxSize()
+                 .background(MaterialTheme.colors.background),
+             verticalArrangement = Arrangement.Center,
+             horizontalAlignment = Alignment.CenterHorizontally
+         ) {
 
-                    val sdf = SimpleDateFormat("'Date\n'dd-MM-yyyy '\n\nand\n\nTime\n'HH:mm:ss z")
-                    val currentDateAndTime = sdf.format(Date())
-                    var registro= "$currentDateAndTime Calorias $calorias Distancia $distancia"
-                    var aux= sharedPreferences.getString("REGISTRO", "defaultRegistro")
-                    aux= aux +"\n"+registro
-                    var editor = sharedPreferences.edit()
-                    editor.putString("REGISTRO", aux)
-                    editor.commit()
-                    Toast.makeText(ctx, "$registro", Toast.LENGTH_SHORT).show()
-                },
+             /* +(currentTime / 1000L).toString(),*/
+             Spacer(modifier = Modifier.height(18.dp))
+             Button(
+                 modifier = Modifier
+                     .padding(top = 5.dp)
+                     .size(30.dp, 30.dp),
+                 colors = ButtonDefaults.buttonColors(
+                     backgroundColor = Color.White
+                 ),
+                 onClick = { /**/ }, // Ação
+             ) {
+                 Icon(
+                     imageVector = Icons.Rounded.Favorite,
+                     contentDescription = "airplane",
+                     tint = Color.Black,
+                     modifier = Modifier
+                         .size(ButtonDefaults.DefaultButtonSize)
+                         .wrapContentSize(align = Alignment.Center),
+                 )
+             }
+             Text(
+                 text = "Calorias quemadas: " + calorias.toString(), fontSize = 15.sp,
+                 fontWeight = FontWeight.Bold,
+                 color = Color.White
+             )
+             Button(
+                 modifier = Modifier
+                     .padding(top = 5.dp)
+                     .size(30.dp, 30.dp),
+                 colors = ButtonDefaults.buttonColors(
+                     backgroundColor = Color.White
+                 ),
+                 onClick = { /**/ }, // Ação
+             ) {
+                 Icon(
+                     imageVector = Icons.Rounded.FollowTheSigns,
+                     contentDescription = "airplane",
+                     tint = Color.Black,
+                     modifier = Modifier
+                         .size(ButtonDefaults.DefaultButtonSize)
+                         .wrapContentSize(align = Alignment.Center),
+                 )
+             }
+             Text(
+                 text = "Distancia: " + distancia.toString(), fontSize = 15.sp,
+                 fontWeight = FontWeight.Bold,
+                 color = Color.White
+             )
+             Row() {
+                 Button(
+                     modifier = Modifier
+                         .padding(top = 5.dp)
+                         .size(70.dp, 30.dp),
+                     onClick = {
+                         if (currentTime <= 0L) {
+                             currentTime = totalTime
+                             isTimerRunning = true
+                         } else {
+                             isTimerRunning = !isTimerRunning
+                         }
+                     },
 
-                // change button color
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color.Gray
+                     // change button color
+                     colors = ButtonDefaults.buttonColors(
+                         backgroundColor = if (!isTimerRunning || currentTime <= 0L) {
+                             Color.Green
+                         } else {
+                             Color.Red
+                         }
+                     )
+                 ) {
+                     Text(
+                         // change the text of button based on values
+                         text = if (isTimerRunning && currentTime >= 0L) "Stop"
+                         else if (!isTimerRunning && currentTime >= 0L) "Start"
+                         else "Restart"
+                     )
+                 }
+                 Button(
+                     modifier = Modifier
+                         .padding(top = 5.dp)
+                         .size(70.dp, 30.dp),
+                     onClick = {
 
-                )
-            ) {
-                Text(
-                    // change the text of button based on values
-                    text = "Restart"
-                )
-            }
-        }
-        Text(
-            text =(currentTime / 1000L).toString() +" seg",
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
-        )
 
-    }
-    // add value of the timer
+                         isTimerRunning = false
+                         currentTime = 0L
+                         resettime = 0f
 
-    // create button to start or stop the timer
+                         val sdf =
+                             SimpleDateFormat("'Date\n'dd-MM-yyyy '\n\nand\n\nTime\n'HH:mm:ss z")
+                         val currentDateAndTime = sdf.format(Date())
+                         var registro =
+                             "$currentDateAndTime Calorias $calorias Distancia $distancia"
+                         var aux = sharedPreferences.getString("REGISTRO", "defaultRegistro")
+                         aux = aux + "\n" + registro
+                         var editor = sharedPreferences.edit()
+                         editor.putString("REGISTRO", aux)
+                         editor.commit()
+                         Toast.makeText(ctx, "$registro", Toast.LENGTH_SHORT).show()
+                     },
+
+                     // change button color
+                     colors = ButtonDefaults.buttonColors(
+                         backgroundColor = Color.Gray
+
+                     )
+                 ) {
+                     Text(
+                         // change the text of button based on values
+                         text = "Restart"
+                     )
+                 }
+             }
+             Text(
+                 text = (currentTime / 1000L).toString() + " seg",
+                 fontSize = 15.sp,
+                 fontWeight = FontWeight.Bold,
+                 color = Color.White
+             )
+
+         }
+         // add value of the timer
+
+         // create button to start or stop the timer
 
 }
 ////////////////////////////CALORIAS/////////////////////////////
@@ -2039,7 +1929,7 @@ fun calorias(
 
 
 @Composable
-fun  textScreen(SharedPreferences: SharedPreferences, navigation:NavController){
+fun  textScreen(SharedPreferences: SharedPreferences, navigation: NavController){
     Column(modifier = Modifier
         .fillMaxSize()
         .background(MaterialTheme.colors.background),
@@ -2067,13 +1957,13 @@ fun TextInput() {
             .background(MaterialTheme.colors.background),
         verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally
     ){
-        Spacer(modifier =Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(20.dp))
         Chip(
             label = { Text(label.value) },
             onClick = {},
         )
-        Spacer(modifier =Modifier.height(20.dp))
-        Chip(label={Text("Insert Data")},
+        Spacer(modifier = Modifier.height(20.dp))
+        Chip(label={ Text("Insert Data") },
             onClick = {
                 val intent : Intent = RemoteInputIntentHelper.createActionRemoteInputIntent();
                 val remoteInputs:List<RemoteInput> = listOf(
@@ -2089,6 +1979,3 @@ fun TextInput() {
 
     }
 }
-
-
-
