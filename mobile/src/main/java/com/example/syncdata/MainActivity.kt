@@ -10,6 +10,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 
 
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,11 +56,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-           // ScreenMain()
-            TabLayout()
+            ScreenMain()
+            //TabLayout()
         }
     }
 }
+/*
 data class workoutData(val name: String = "", val reps: Int = 0)
 
 class workOutviewmodel : ViewModel() {
@@ -88,17 +91,17 @@ class workOutviewmodel : ViewModel() {
         }
     }
 }
-
+*/
 
 @Composable
 fun WearApp() {
-    val viewModel = workOutviewmodel()
+ //   val viewModel = workOutviewmodel()
     //workOutScreen(viewModel)
     //Home()
 
 }
 
-
+/*
 @Composable
 fun workOutList(workoutData: List<workoutData>) {
 
@@ -130,12 +133,12 @@ fun workOutList(workoutData: List<workoutData>) {
                         contentDescription = "Delete",
                         tint = Color.White
                     )
-                }*/
+                }
             }
         }
     }
 }
-
+*/
 
 @Composable
 fun workOutScreen(viewModel: workOutviewmodel ) {
@@ -179,7 +182,7 @@ fun workOutScreen(viewModel: workOutviewmodel ) {
 
 }
 
-
+*/
 
 
 @Composable
@@ -254,7 +257,7 @@ fun Home(){
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
-                Text(text = "Registros",
+                Text(text = "Registro",
                     style = MaterialTheme.typography.h4)
                 Button( modifier = Modifier,
                     onClick = { /*TODO*/ }) {
@@ -276,7 +279,7 @@ fun Home(){
 fun TabLayout() {
     val colorcito = Color(0xFF6E53C6)
     // on below line we are creating variable for pager state.
-    val pagerState = rememberPagerState(pageCount = 5)
+    val pagerState = rememberPagerState(pageCount = 4)
 
 
     // on below line we are creating a column for our widgets.
@@ -335,7 +338,6 @@ fun Tabs(pagerState: PagerState) {
         "Running" to Icons.Default.DirectionsRun,
         "Squats" to Icons.Default.SelfImprovement,
         //"Sentadillas" to Icons.Default.AccessibilityNew,
-        "Logs" to Icons.Default.Dns,
         "Data" to Icons.Default.Person,
     )
     val scope = rememberCoroutineScope()
@@ -379,324 +381,328 @@ fun TabsContent(pagerState: PagerState) {
     HorizontalPager(state = pagerState) {
             page ->
         when (page) {
-            0 -> Caminar()
-            1 -> Correr()
-            2 -> Sentadillas()
-            3-> Registros()
-            4-> Datos()
+            0 -> Caminar(viewModel= correrView())
+            1 -> Correr(viewModel= correrView())
+            2 -> Sentadillas(viewModel= sentadillasView())
+            3-> Datos(viewModel = datosView())
         }
     }
 }
 
 
-@Composable
-fun Caminar(){
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
-    ) {
-        Text(text = "Walking",
-            style = MaterialTheme.typography.h4,
-            fontSize = 45.sp)
-Spacer(modifier = Modifier.height(20.dp))
-        Button(
-            onClick = { /* ... */ },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-        modifier = Modifier
-            .height(80.dp)
-            .width(180.dp),
 
-            // Uses ButtonDefaults.ContentPadding by default
-            contentPadding = PaddingValues(
-                start = 20.dp,
-                top = 12.dp,
-                end = 20.dp,
-                bottom = 12.dp
-            )
-        ) {
-            // Inner content including an icon and a text label
-            Icon(
-                Icons.Filled.Favorite,
-                contentDescription = "Favorite",
-                tint = Color(0xFF26C6DA), //5
-                modifier = Modifier.size(24.dp)
-            )
+data class correrData(
+    val calorias_quemadas: String = "",
+    var distancia: String = "",
+    val pasos: String = "",
+    val ritmo_cardiaco: String = "",
+)
 
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("Calorias")
-        }
+class correrView : ViewModel() {
+    private val database = Firebase.database("https://esp8266-demo-e7191-default-rtdb.firebaseio.com")
+    private var _datos = mutableStateOf<List<correrData>>(emptyList())
+    val Datos_correr: State<List<correrData>> = _datos
 
-        Spacer(modifier = Modifier.height(20.dp))
-        Button(
-            onClick = { /* ... */ },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-            modifier = Modifier
-                .height(80.dp)
-                .width(180.dp),
+    fun getData() {
+        database.getReference("correr").addValueEventListener(
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    _datos.value = snapshot.getValue<List<correrData>>()!!
+                }
 
-            // Uses ButtonDefaults.ContentPadding by default
-            contentPadding = PaddingValues(
-                start = 20.dp,
-                top = 12.dp,
-                end = 20.dp,
-                bottom = 12.dp
-            )
-        ) {
-            // Inner content including an icon and a text label
-            Icon(
-                Icons.Filled.Favorite,
-                contentDescription = "Favorite",
-                tint = Color(0xFF26C6DA), //5
-                modifier = Modifier.size(24.dp)
-            )
-
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("Distancia")
-        }
-    }
-
-    }
-
-
-@Composable
-fun Correr(){
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
-    ) {
-        Text(text = "Running",
-            style = MaterialTheme.typography.h4,
-            fontSize = 45.sp)
-        Spacer(modifier = Modifier.height(20.dp))
-        Button(
-            onClick = { /* ... */ },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-            modifier = Modifier
-                .height(80.dp)
-                .width(180.dp),
-
-            // Uses ButtonDefaults.ContentPadding by default
-            contentPadding = PaddingValues(
-                start = 20.dp,
-                top = 12.dp,
-                end = 20.dp,
-                bottom = 12.dp
-            )
-        ) {
-            // Inner content including an icon and a text label
-            Icon(
-                Icons.Filled.Favorite,
-                contentDescription = "Favorite",
-                tint = Color(0xFF26C6DA), //5
-                modifier = Modifier.size(24.dp)
-            )
-
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("Calorias")
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-        Button(
-            onClick = { /* ... */ },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-            modifier = Modifier
-                .height(80.dp)
-                .width(180.dp),
-
-            // Uses ButtonDefaults.ContentPadding by default
-            contentPadding = PaddingValues(
-                start = 20.dp,
-                top = 12.dp,
-                end = 20.dp,
-                bottom = 12.dp
-            )
-        ) {
-            // Inner content including an icon and a text label
-            Icon(
-                Icons.Filled.Favorite,
-                contentDescription = "Favorite",
-                tint = Color(0xFF26C6DA), //5
-                modifier = Modifier.size(24.dp)
-            )
-
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("Distancia")
-        }
-
-
-    }
-
-}
-
-@Composable
-fun Registros(){
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
-    ) {
-        Text(text = "Registros",
-            style = MaterialTheme.typography.h4,
-            fontSize = 45.sp)
-        Spacer(modifier = Modifier.height(20.dp))
-        LazyColumn {
-            items(10) {
-                Text(text = "Registro")
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("Firebase", "Error getting data", error.toException())
+                }
             }
+        )
+    }
+    fun writeToDB(data: correrData, index: Int) {
+        val database = Firebase.database("https://esp8266-demo-e7191-default-rtdb.firebaseio.com")
+        val myRef = database.getReference("correr")
+        listOf(data).forEach {
+            myRef.child(index.toString()).setValue(it)
         }
 
-
     }
-
 }
 
-@Composable
-fun Datos(){
-    var nom_usuario by remember { mutableStateOf("") }
-    var edad_usuario by remember { mutableStateOf("") }
-    var altura_usuario by remember { mutableStateOf("") }
-    var peso_usuario by remember { mutableStateOf("") }
-    var sexo_usuario by remember { mutableStateOf("") }
-        Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
-    ) {
-        Text(text = "Tus datos",
-            style = MaterialTheme.typography.h4,
-            fontSize = 45.sp)
-            Spacer(modifier = Modifier.height(20.dp))
-        TextField(value = nom_usuario, onValueChange = {nom_usuario=it},
-            leadingIcon = {Icon(imageVector = Icons.Default.Person, contentDescription = "UserIcon")},
-            label = { Text(text = "Usuario")})
-        Spacer(modifier = Modifier.height(20.dp))
 
-        TextField(value = edad_usuario, onValueChange = {edad_usuario=it},
-            leadingIcon = {Icon(imageVector = Icons.Default.Person, contentDescription = "UserIcon")},
-            label = { Text(text = "Edad")})
-        Spacer(modifier = Modifier.height(20.dp))
-        TextField(value = altura_usuario, onValueChange = {altura_usuario=it},
-            leadingIcon = {Icon(imageVector = Icons.Default.Person, contentDescription = "UserIcon")},
-            label = { Text(text = "Altura")})
-        Spacer(modifier = Modifier.height(20.dp))
-        TextField(value = peso_usuario, onValueChange = {peso_usuario=it},
-            leadingIcon = {Icon(imageVector = Icons.Default.Person, contentDescription = "UserIcon")},
-            label = { Text(text = "Peso")})
-        Spacer(modifier = Modifier.height(20.dp))
-            TextField(value = sexo_usuario, onValueChange = {sexo_usuario=it},
-                leadingIcon = {Icon(imageVector = Icons.Default.Person, contentDescription = "UserIcon")},
-                label = { Text(text = "Sexo")})
-            Spacer(modifier = Modifier.height(20.dp))
-            Button(
-                onClick = { /* ... */ },
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+@Composable
+fun Caminar(viewModel: correrView){
+    val colorcito = Color(0xFF6E53C6)
+    viewModel.getData()
+    val index = viewModel.Datos_correr.value.size
+    val calorias_quemadas =""
+    val distancia = ""
+    val pasos = ""
+    val ritmo_cardiaco =""
+    println("pasos: $pasos"+ "ritmo cardiaco: $ritmo_cardiaco"+ "calorias quemadas: $calorias_quemadas"+ "distancia: $distancia")
+
+    LazyColumn() {
+        items(viewModel.Datos_correr.value) { workout ->
+            Column(
                 modifier = Modifier
-                    .height(80.dp)
-                    .width(180.dp),
+                    .fillMaxSize()
+                    .background(
+                        MaterialTheme.colors.background
+                    ),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                Spacer(modifier = Modifier.height(25.dp))
+                Text(color=colorcito, text="Registro"  , fontSize=30.sp)
+                Spacer(modifier = Modifier.height(20.dp))
 
-                // Uses ButtonDefaults.ContentPadding by default
-                contentPadding = PaddingValues(
-                    start = 20.dp,
-                    top = 12.dp,
-                    end = 20.dp,
-                    bottom = 12.dp
+                Text(
+                    text = "Calorias quemadas: " + workout.calorias_quemadas.toString(),
+                    textAlign = TextAlign.Center,
+                    color = Color.Black
                 )
-            ) {
-                // Inner content including an icon and a text label
-                Icon(
-                    Icons.Filled.Favorite,
-                    contentDescription = "Favorite",
-                    tint = Color(0xFF26C6DA), //5
-                    modifier = Modifier.size(24.dp)
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Distancia: " + workout.distancia.toString() + " m",
+                    textAlign = TextAlign.Center,
+                    color = Color.Black
                 )
-
-                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                Text("Pasos")
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Pasos: " + workout.pasos.toString(),
+                    textAlign = TextAlign.Center,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Ritmo cardiaco: " + workout.ritmo_cardiaco.toString(),
+                    textAlign = TextAlign.Center,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(20.dp))
             }
+        }
 
     }
+    }
 
-}
 
 @Composable
-fun Sentadillas(){
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
-    ) {
-        Text(text = "Squat",
-            style = MaterialTheme.typography.h4,
-            fontSize = 45.sp)
-        Spacer(modifier = Modifier.height(20.dp))
-        Button(
-            onClick = { /* ... */ },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-            modifier = Modifier
-                .height(80.dp)
-                .width(180.dp),
+fun Correr(viewModel: correrView) {
+    val colorcito = Color(0xFF6E53C6)
+    viewModel.getData()
+    val index = viewModel.Datos_correr.value.size
+    val calorias_quemadas = ""
+    val distancia = ""
+    val pasos = ""
+    val ritmo_cardiaco = ""
+    println("pasos: $pasos" + "ritmo cardiaco: $ritmo_cardiaco" + "calorias quemadas: $calorias_quemadas" + "distancia: $distancia")
 
-            // Uses ButtonDefaults.ContentPadding by default
-            contentPadding = PaddingValues(
-                start = 20.dp,
-                top = 12.dp,
-                end = 20.dp,
-                bottom = 12.dp
-            )
-        ) {
-            // Inner content including an icon and a text label
-            Icon(
-                Icons.Filled.Favorite,
-                contentDescription = "Favorite",
-                tint = Color(0xFF26C6DA), //5
-                modifier = Modifier.size(24.dp)
-            )
 
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("Calorias")
+    LazyColumn() {
+        items(viewModel.Datos_correr.value) { workout ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        MaterialTheme.colors.background
+                    ),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(25.dp))
+                Text(color=colorcito, text="Registro" , fontSize=30.sp )
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "Calorias quemadas: " + workout.calorias_quemadas.toString(),
+                    textAlign = TextAlign.Center,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Distancia: " + workout.distancia.toString() + " m",
+                    textAlign = TextAlign.Center,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Pasos: " + workout.pasos.toString(),
+                    textAlign = TextAlign.Center,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Ritmo cardiaco: " + workout.ritmo_cardiaco.toString(),
+                    textAlign = TextAlign.Center,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+            }
         }
+        }
+}
 
-        Spacer(modifier = Modifier.height(20.dp))
-        Button(
-            onClick = { /* ... */ },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-            modifier = Modifier
-                .height(80.dp)
-                .width(180.dp),
 
-            // Uses ButtonDefaults.ContentPadding by default
-            contentPadding = PaddingValues(
-                start = 20.dp,
-                top = 12.dp,
-                end = 20.dp,
-                bottom = 12.dp
+
+    data class datos_personales_f(
+        var nombre: String = "",
+        val sexo: String = "",
+        val edad: String = "",
+        val altura: String = "",
+        val peso: String = ""
+    )
+
+    var xd= mutableStateOf<datos_personales_f>(datos_personales_f("","", "", "", ""))
+    class datosView : ViewModel() {
+        private val database = Firebase.database("https://esp8266-demo-e7191-default-rtdb.firebaseio.com")
+        private var _datos = mutableStateOf<List<datos_personales_f>>(emptyList())
+        val Datos_personales: State<List<datos_personales_f>> = _datos
+
+        fun getData() {
+            database.getReference("datos_personales").addValueEventListener(
+                object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        _datos.value = snapshot.getValue<List<datos_personales_f>>()!!
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("Firebase", "Error getting data", error.toException())
+                    }
+                }
             )
-        ) {
-            // Inner content including an icon and a text label
-            Icon(
-                Icons.Filled.Favorite,
-                contentDescription = "Favorite",
-                tint = Color(0xFF26C6DA), //5
-                modifier = Modifier.size(24.dp)
-            )
+        }
+    }
 
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("Distancia")
+
+@Composable
+fun Datos(viewModel: datosView) {
+    val colorcito = Color(0xFF6E53C6)
+    viewModel.getData()
+    val state = rememberScrollState()
+    LaunchedEffect(Unit) { state.animateScrollTo(100) }
+    LazyColumn() {
+        items(viewModel.Datos_personales.value) { workout ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        MaterialTheme.colors.background
+                    ),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                Spacer(modifier = Modifier.height(25.dp))
+                Text(color=colorcito, text="Datos" , fontSize=30.sp )
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "Nombre: ${workout.nombre}" , color=Color.Black
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "Sexo: ${workout.sexo}"
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "Edad: ${workout.edad}"
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "Altura: ${workout.altura}"
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "Peso: ${workout.peso}"
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+            }
         }
     }
 }
+
+
+
+data class sentadillasData(
+    val calorias_quemadas: String = "",
+    val repeticiones: String = "",
+    val ritmo_cardiaco: String = "",
+)
+
+class sentadillasView : ViewModel() {
+    private val database = Firebase.database("https://esp8266-demo-e7191-default-rtdb.firebaseio.com")
+    private var _datos = mutableStateOf<List<sentadillasData>>(emptyList())
+    val Datos_sentadillas: State<List<sentadillasData>> = _datos
+
+    fun getData() {
+        database.getReference("datos_sentadillas").addValueEventListener(
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    _datos.value = snapshot.getValue<List<sentadillasData>>()!!
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("Firebase", "Error getting data", error.toException())
+                }
+            }
+        )
+    }
+    fun writeToDB(data: sentadillasData, index: Int) {
+        val database = Firebase.database("https://esp8266-demo-e7191-default-rtdb.firebaseio.com")
+        val myRef = database.getReference("datos_sentadillas")
+        listOf(data).forEach {
+            myRef.child(index.toString()).setValue(it)
+        }
+
+    }
+}
+
+
+@Composable
+fun Sentadillas(viewModel: sentadillasView) {
+    val colorcito = Color(0xFF6E53C6)
+    viewModel.getData()
+    val index = viewModel.Datos_sentadillas.value.size
+    val calorias_quemadas = ""
+    val repeticiones = ""
+    val ritmo_cardiaco = ""
+    val acelerometro = ""
+    println("Acelerometro:--------------------------- $acelerometro----------------------------")
+    println("repeticiones:-------------- $repeticiones"+ "ritmo cardiaco: $ritmo_cardiaco"+ "calorias quemadas: $calorias_quemadas")
+
+    LazyColumn() {
+        items(viewModel.Datos_sentadillas.value) { workout ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        MaterialTheme.colors.background
+                    ),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+
+                Spacer(modifier = Modifier.height(25.dp))
+                Text(color=colorcito, text="Registro" , fontSize=30.sp)
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "Calorias quemadas: " + workout.calorias_quemadas.toString(),
+                    textAlign = TextAlign.Center,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "Repeticiones: " + workout.repeticiones.toString(),
+                    textAlign = TextAlign.Center,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "Ritmo cardiaco: " + workout.ritmo_cardiaco.toString(),
+                    textAlign = TextAlign.Center,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+        }
+            }
+}
+
 
 @Composable
 fun Login(navController: NavController){
