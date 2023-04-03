@@ -1,25 +1,31 @@
 name: Android CI
-
 on:
   push:
-    branches: [ "ci/cd" ]
+    branches: [ "Brandon" ]
   pull_request:
-    branches: [ "ci/cd" ]
-
+    branches: [ "Brandon" ]
 jobs:
-  build:
+  flutter_test:
+    name: Flutter test and analize
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK 11
-        uses: actions/setup-java@v3
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
         with:
-          java-version: '11'
-          distribution: 'temurin'
-          cache: gradle
-
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-      - name: Build app
-        run: ./gradlew assemble
+          java-version: '12.x'
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '2.2.3'
+        - name: Flutter test
+            run: flutter test
+        - name: Flutter analyze
+            run: flutter analyze
+        - name: Flutter build
+            run: flutter build apk --release
+        - name: Flutter build
+            run: flutter build ios --release --no-codesign
+        - name: Flutter build
+            run: flutter build appbundle --release
+        - name: Flutter build
+            run: flutter build web --release
+        - name: Flutter build
