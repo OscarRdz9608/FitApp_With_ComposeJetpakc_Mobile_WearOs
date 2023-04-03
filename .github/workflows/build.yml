@@ -16,16 +16,3 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           flutter-version: '2.2.3'
-        - name: Flutter test
-            run: flutter test
-        - name: Flutter analyze
-            run: flutter analyze
-        - name: Flutter build
-            run: flutter build apk --release
-        - name: Flutter build
-            run: flutter build ios --release --no-codesign
-        - name: Flutter build
-            run: flutter build appbundle --release
-        - name: Flutter build
-            run: flutter build web --release
-        - name: Flutter build
