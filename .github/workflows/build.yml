@@ -1,9 +1,9 @@
 name: Android CI
 on:
   push:
-    branches: [ "Brandon" ]
+    branches: [ "ci/cd" ]
   pull_request:
-    branches: [ "Brandon" ]
+    branches: [ "ci/cd" ]
 jobs:
   flutter_test:
     name: Flutter test and analize
