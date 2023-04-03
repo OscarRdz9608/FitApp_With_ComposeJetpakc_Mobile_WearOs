@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
         with:
-          java-version: '11'
+          java-version: '12.x'
       - uses: subosito/flutter-action@v1
         with:
           flutter-version: '2.2.3'
@@ -22,6 +22,5 @@ jobs:
             run: flutter analyze
         - name: Flutter build
             run: flutter build apk --release
-        - name: Flutter build
-            run: flutter build ios --release --no-codesign
+
 
